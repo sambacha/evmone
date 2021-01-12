@@ -39,6 +39,7 @@ if(CABLE_COMPILER_GNULIKE)
     target_compile_options(
         evmone PRIVATE
         -fno-exceptions
+        -fno-slp-vectorize
         $<$<CXX_COMPILER_ID:GNU>:-Wstack-usage=2500>
     )
     if(NOT SANITIZE MATCHES undefined)
