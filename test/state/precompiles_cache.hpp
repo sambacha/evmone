@@ -23,8 +23,17 @@ public:
     Cache() noexcept;
     ~Cache() noexcept;
 
+    /// Lookups the precompiles cache.
+    ///
+    /// @param id        The precompile ID.
+    /// @param input     The input for precompile execution.
+    /// @param gas_left  The amount of gas left _after_ execution,
+    ///                  used for constructing the result for successful execution.
+    /// @return          The cached execution result
+    ///                  or std::nullopt if the matching cache entry is not found.
     std::optional<evmc::Result> find(uint8_t id, bytes_view input, int64_t gas_left) const;
 
+    /// Inserts new precompiles cache entry.
     void insert(uint8_t id, bytes_view input, const evmc::Result& result);
 };
 }  // namespace evmone::state

@@ -68,8 +68,8 @@ PrecompileAnalysis ecmul_analyze(bytes_view /*input*/, evmc_revision rev) noexce
 
 PrecompileAnalysis ecpairing_analyze(bytes_view input, evmc_revision rev) noexcept
 {
-    const auto base_cost = (rev < EVMC_ISTANBUL) ? 100000 : 45000;
-    const auto element_cost = (rev < EVMC_ISTANBUL) ? 80000 : 34000;
+    const auto base_cost = (rev >= EVMC_ISTANBUL) ? 45000 : 100000;
+    const auto element_cost = (rev >= EVMC_ISTANBUL) ? 34000 : 80000;
     const auto num_elements = static_cast<int64_t>(input.size() / 192);
     return {base_cost + num_elements * element_cost, 32};
 }
@@ -79,12 +79,12 @@ PrecompileAnalysis blake2bf_analyze(bytes_view input, evmc_revision) noexcept
     return {input.size() == 213 ? intx::be::unsafe::load<uint32_t>(input.data()) : GasCostMax, 64};
 }
 
-PrecompileAnalysis expmode_analyze(bytes_view input, evmc_revision rev) noexcept
+PrecompileAnalysis expmod_analyze(bytes_view input, evmc_revision rev) noexcept
 {
     using namespace intx;
 
     static constexpr size_t input_header_required_size = 3 * sizeof(uint256);
-    const int64_t min_gas = rev < EVMC_BERLIN ? 0 : 200;
+    const int64_t min_gas = (rev >= EVMC_BERLIN) ? 200 : 0;
 
     uint8_t input_header[input_header_required_size]{};
     std::copy_n(input.data(), std::min(input.size(), input_header_required_size), input_header);
@@ -131,8 +131,9 @@ PrecompileAnalysis expmode_analyze(bytes_view input, evmc_revision rev) noexcept
     const auto max_len = std::max(mod_len, base_len);
     const auto adjusted_exp_len = adjusted_len(
         sizeof(input_header) + static_cast<size_t>(base_len), static_cast<size_t>(exp_len));
-    const auto gas = (rev < EVMC_BERLIN) ? mult_complexity_eip198(max_len) * adjusted_exp_len / 20 :
-                                           mult_complexity_eip2565(max_len) * adjusted_exp_len / 3;
+    const auto gas = (rev >= EVMC_BERLIN) ?
+                         mult_complexity_eip2565(max_len) * adjusted_exp_len / 3 :
+                         mult_complexity_eip198(max_len) * adjusted_exp_len / 20;
     return {std::max(min_gas, static_cast<int64_t>(std::min(gas, intx::uint256{GasCostMax}))),
         static_cast<size_t>(mod_len)};
 }
@@ -154,12 +155,8 @@ struct PrecompileTraits
 template <PrecompileId Id>
 ExecutionResult dummy_execute(const uint8_t*, size_t, uint8_t*, size_t) noexcept
 {
-    static constexpr auto impl = [](PrecompileId id) noexcept {
-        std::cerr << "Precompile " << static_cast<int>(id) << " not implemented!\n";
-        return ExecutionResult{EVMC_INTERNAL_ERROR, 0};
-    };
-
-    return impl(Id);
+    std::cerr << "Precompile " << static_cast<int>(Id) << " not implemented!\n";
+    return ExecutionResult{EVMC_INTERNAL_ERROR, 0};
 }
 
 inline constexpr auto traits = []() noexcept {
@@ -169,7 +166,7 @@ inline constexpr auto traits = []() noexcept {
         {sha256_analyze, dummy_execute<PrecompileId::sha256>},
         {ripemd160_analyze, dummy_execute<PrecompileId::ripemd160>},
         {identity_analyze, identity_execute},
-        {expmode_analyze, dummy_execute<PrecompileId::expmod>},
+        {expmod_analyze, dummy_execute<PrecompileId::expmod>},
         {ecadd_analyze, dummy_execute<PrecompileId::ecadd>},
         {ecmul_analyze, dummy_execute<PrecompileId::ecmul>},
         {ecpairing_analyze, dummy_execute<PrecompileId::ecpairing>},
