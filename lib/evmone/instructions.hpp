@@ -820,6 +820,40 @@ inline void swap(StackTop stack) noexcept
     a[3] = t3;
 }
 
+inline code_iterator dupn(StackTop stack, ExecutionState& state, code_iterator pos) noexcept
+{
+    const auto n = pos[1] + 17 - 1;
+
+    const auto stack_size = &stack.top() - state.stack_space.bottom();
+
+    if (stack_size <= n)
+    {
+        state.status = EVMC_STACK_UNDERFLOW;
+        return nullptr;
+    }
+
+    stack.push(stack[n]);
+
+    return pos + 2;
+}
+
+inline code_iterator swapn(StackTop stack, ExecutionState& state, code_iterator pos) noexcept
+{
+    const auto n = pos[1] + 17;
+
+    const auto stack_size = &stack.top() - state.stack_space.bottom();
+
+    if (stack_size <= n)
+    {
+        state.status = EVMC_STACK_UNDERFLOW;
+        return nullptr;
+    }
+
+    std::swap(stack.top(), stack[n]);
+
+    return pos + 2;
+}
+
 template <size_t NumTopics>
 inline evmc_status_code log(StackTop stack, ExecutionState& state) noexcept
 {

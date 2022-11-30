@@ -230,6 +230,6 @@ TEST(eof_validation, EOF1_terminating_instructions)
                                    opcode == OP_INVALID || opcode == OP_SELFDESTRUCT) ?
                                    EOFValidationError::success :
                                    EOFValidationError::missing_terminating_instruction);
-        EXPECT_EQ(validate_eof(container), expected) << hex(code);
+        EXPECT_EQ(validate_eof(container, EVMC_CANCUN), expected) << hex(code);
     }
 }
