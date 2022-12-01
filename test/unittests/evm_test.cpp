@@ -167,17 +167,17 @@ TEST_P(evm, dupn)
 
     execute(pushes + OP_DUPN + "00" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(4);
+    EXPECT_OUTPUT_INT(20);
 
     execute(pushes + OP_DUPN + "02" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(2);
+    EXPECT_OUTPUT_INT(18);
 
-    execute(pushes + OP_DUPN + "03" + ret_top());
+    execute(pushes + OP_DUPN + "13" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
     EXPECT_OUTPUT_INT(1);
 
-    execute(pushes + OP_DUPN + "04" + ret_top());
+    execute(pushes + OP_DUPN + "14" + ret_top());
     EXPECT_STATUS(EVMC_STACK_UNDERFLOW);
 }
 
@@ -195,17 +195,17 @@ TEST_P(evm, swapn)
 
     execute(pushes + OP_SWAPN + "00" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(3);
+    EXPECT_OUTPUT_INT(19);
 
     execute(pushes + OP_SWAPN + "01" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(2);
+    EXPECT_OUTPUT_INT(18);
 
-    execute(pushes + OP_SWAPN + "02" + ret_top());
+    execute(pushes + OP_SWAPN + "12" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
     EXPECT_OUTPUT_INT(1);
 
-    execute(pushes + OP_SWAPN + "03" + ret_top());
+    execute(pushes + OP_SWAPN + "13" + ret_top());
     EXPECT_STATUS(EVMC_STACK_UNDERFLOW);
 }
 
@@ -222,15 +222,15 @@ TEST_P(evm, dupn_full_stack)
 
     execute(full_stack_code + OP_POP + OP_DUPN + "00" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(17 + 1);
+    EXPECT_OUTPUT_INT(2);
 
     execute(full_stack_code + OP_POP + OP_DUPN + "ff" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(255 + 17 + 1);
+    EXPECT_OUTPUT_INT(257);
 
     execute(full_stack_code + OP_POP + OP_DUPN + "fe" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(254 + 17 + 1);
+    EXPECT_OUTPUT_INT(256);
 
     execute(full_stack_code + OP_DUPN + "fe" + OP_DUPN + "ff");
     EXPECT_STATUS(EVMC_STACK_OVERFLOW);
@@ -249,19 +249,19 @@ TEST_P(evm, swapn_full_stack)
 
     execute(full_stack_code + OP_POP + OP_SWAPN + "00" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(17 + 2);
+    EXPECT_OUTPUT_INT(3);
 
     execute(full_stack_code + OP_POP + OP_SWAPN + "ff" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(255 + 17 + 2);
+    EXPECT_OUTPUT_INT(255 + 3);
 
     execute(full_stack_code + OP_POP + OP_SWAPN + "fe" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(254 + 17 + 2);
+    EXPECT_OUTPUT_INT(254 + 3);
 
     execute(full_stack_code + OP_SWAPN + "ff" + OP_SWAPN + "00" + OP_RETURN);
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_EQ(result.output_size, 2);
+    EXPECT_EQ(result.output_size, 255 + 2);
 }
 
 TEST_P(evm, dupn_dup_consistency)
@@ -275,13 +275,21 @@ TEST_P(evm, dupn_dup_consistency)
     for (uint64_t i = 32; i >= 1; --i)
         pushes += push(i);
 
+    execute(pushes + OP_DUP1 + ret_top());
+    EXPECT_STATUS(EVMC_SUCCESS);
+    EXPECT_OUTPUT_INT(1);
+
+    execute(pushes + OP_DUPN + "00" + ret_top());
+    EXPECT_STATUS(EVMC_SUCCESS);
+    EXPECT_OUTPUT_INT(1);
+
     execute(pushes + OP_DUP16 + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
     EXPECT_OUTPUT_INT(16);
 
-    execute(pushes + OP_DUPN + "00" + ret_top());
+    execute(pushes + OP_DUPN + "0f" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(17);
+    EXPECT_OUTPUT_INT(16);
 }
 
 TEST_P(evm, swapn_swap_consistency)
@@ -295,13 +303,21 @@ TEST_P(evm, swapn_swap_consistency)
     for (uint64_t i = 32; i >= 1; --i)
         pushes += push(i);
 
+    execute(pushes + OP_SWAP1 + ret_top());
+    EXPECT_STATUS(EVMC_SUCCESS);
+    EXPECT_OUTPUT_INT(2);
+
+    execute(pushes + OP_SWAPN + "00" + ret_top());
+    EXPECT_STATUS(EVMC_SUCCESS);
+    EXPECT_OUTPUT_INT(2);
+
     execute(pushes + OP_SWAP16 + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
     EXPECT_OUTPUT_INT(17);
 
-    execute(pushes + OP_SWAPN + "00" + ret_top());
+    execute(pushes + OP_SWAPN + "0f" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
-    EXPECT_OUTPUT_INT(18);
+    EXPECT_OUTPUT_INT(17);
 }
 
 TEST_P(evm, gas)

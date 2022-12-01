@@ -822,7 +822,7 @@ inline void swap(StackTop stack) noexcept
 
 inline code_iterator dupn(StackTop stack, ExecutionState& state, code_iterator pos) noexcept
 {
-    const auto n = pos[1] + 17 - 1;
+    const auto n = pos[1];
 
     const auto stack_size = &stack.top() - state.stack_space.bottom();
 
@@ -839,7 +839,7 @@ inline code_iterator dupn(StackTop stack, ExecutionState& state, code_iterator p
 
 inline code_iterator swapn(StackTop stack, ExecutionState& state, code_iterator pos) noexcept
 {
-    const auto n = pos[1] + 17;
+    const auto n = pos[1] + 1;
 
     const auto stack_size = &stack.top() - state.stack_space.bottom();
 
