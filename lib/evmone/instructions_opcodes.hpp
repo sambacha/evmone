@@ -152,8 +152,8 @@ enum Opcode
     OP_LOG3 = 0xa3,
     OP_LOG4 = 0xa4,
 
-    OP_DUPN = 0xb2,
-    OP_SWAPN = 0xb3,
+    OP_DUPN = 0xb3,
+    OP_SWAPN = 0xb4,
 
     OP_CREATE = 0xf0,
     OP_CALL = 0xf1,
