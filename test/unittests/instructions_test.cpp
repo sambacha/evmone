@@ -136,9 +136,9 @@ TEST(instructions, compare_undefined_instructions)
 
         for (size_t i = 0; i < instr_tbl.size(); ++i)
         {
-            // Skip DUPN and SWAPN for Cancun. They are not defined in evmc
+            // Skip DUPN and SWAPN. They are not defined in evmc
             // TODO: Define DUPN and SWAPN in evmc
-            if (r == EVMC_CANCUN && (Opcode(i) == OP_DUPN || Opcode(i) == OP_SWAPN))
+            if (Opcode(i) == OP_DUPN || Opcode(i) == OP_SWAPN)
                 continue;
             EXPECT_EQ(instr_tbl[i] == instr::undefined, evmc_names_tbl[i] == nullptr) << i;
         }
@@ -150,10 +150,9 @@ TEST(instructions, compare_with_evmc_instruction_names)
     const auto* evmc_tbl = evmc_get_instruction_names_table(EVMC_MAX_REVISION);
     for (size_t i = 0; i < instr::traits.size(); ++i)
     {
-        // Skip DUPN and SWAPN for Cancun. They are not defined in evmc
+        // Skip DUPN and SWAPN. They are not defined in evmc
         // TODO: Define DUPN and SWAPN in evmc
-        if (instr::traits[i].since == EVMC_CANCUN &&
-            (Opcode(i) == OP_DUPN || Opcode(i) == OP_SWAPN))
+        if (Opcode(i) == OP_DUPN || Opcode(i) == OP_SWAPN)
             continue;
         EXPECT_STREQ(instr::traits[i].name, evmc_tbl[i]);
     }

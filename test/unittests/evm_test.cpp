@@ -197,13 +197,25 @@ TEST_P(evm, swapn)
     EXPECT_STATUS(EVMC_SUCCESS);
     EXPECT_OUTPUT_INT(19);
 
+    execute(pushes + OP_SWAPN + "00" + OP_DUPN + "01" + ret_top());
+    EXPECT_STATUS(EVMC_SUCCESS);
+    EXPECT_OUTPUT_INT(20);
+
     execute(pushes + OP_SWAPN + "01" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
     EXPECT_OUTPUT_INT(18);
 
+    execute(pushes + OP_SWAPN + "01" + OP_DUPN + "02" + ret_top());
+    EXPECT_STATUS(EVMC_SUCCESS);
+    EXPECT_OUTPUT_INT(20);
+
     execute(pushes + OP_SWAPN + "12" + ret_top());
     EXPECT_STATUS(EVMC_SUCCESS);
     EXPECT_OUTPUT_INT(1);
+
+    execute(pushes + OP_SWAPN + "12" + OP_DUPN + "13" + ret_top());
+    EXPECT_STATUS(EVMC_SUCCESS);
+    EXPECT_OUTPUT_INT(20);
 
     execute(pushes + OP_SWAPN + "13" + ret_top());
     EXPECT_STATUS(EVMC_STACK_UNDERFLOW);
